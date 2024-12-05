@@ -1,0 +1,40 @@
+name: tests
+
+on: ["push", "pull_request"]
+
+jobs:
+    build-static:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - name: Run tests directly
+          run: cargo test  -vv --features="static"
+
+    build-shared:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - name: Run tests directly
+          run: cargo test -vv
+
+    external-static:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - uses: conda-incubator/setup-miniconda@v3
+        - name: Run tests with external dependencies
+          run: |
+            conda install dftd4-python -c conda-forge
+            ls /usr/share/miniconda/lib
+            DFTD3_DIR=/usr/share/miniconda/lib cargo test -vv --features="static"
+
+    external-shared:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - uses: conda-incubator/setup-miniconda@v3
+        - name: Run tests with external dependencies
+          run: |
+            conda install dftd4-python -c conda-forge
+            ls /usr/share/miniconda/lib
+            LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/share/miniconda/lib cargo test -vv
